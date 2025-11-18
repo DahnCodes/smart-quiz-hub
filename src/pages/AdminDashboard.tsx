@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { Plus, FileText, Users, TrendingUp, Edit, Trash2 } from 'lucide-react';
+import { Plus, FileText, Users, TrendingUp, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import {
@@ -26,6 +26,7 @@ interface Quiz {
   duration_minutes: number;
   is_active: boolean;
   created_at: string;
+  class: string;
 }
 
 interface QuizStats {
@@ -35,7 +36,7 @@ interface QuizStats {
 }
 
 export default function AdminDashboard() {
-  const { profile } = useAuth();
+  const { signOut } = useAuth();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [stats, setStats] = useState<Record<string, QuizStats>>({});
   const [loading, setLoading] = useState(true);
@@ -56,13 +57,12 @@ export default function AdminDashboard() {
       if (error) throw error;
       setQuizzes(data || []);
       
-      // Fetch stats for each quiz
       if (data) {
         data.forEach(quiz => fetchQuizStats(quiz.id));
       }
     } catch (error: any) {
       console.error('Error fetching quizzes:', error);
-      toast.error('Failed to load quizzes');
+      toast.error('Failed to load tests');
     } finally {
       setLoading(false);
     }
@@ -103,12 +103,12 @@ export default function AdminDashboard() {
 
       if (error) throw error;
 
-      toast.success('Quiz deleted successfully');
+      toast.success('Test deleted successfully');
       setQuizzes(quizzes.filter(q => q.id !== quizId));
       setDeleteQuizId(null);
     } catch (error: any) {
       console.error('Error deleting quiz:', error);
-      toast.error('Failed to delete quiz');
+      toast.error('Failed to delete test');
     }
   };
 
@@ -118,15 +118,18 @@ export default function AdminDashboard() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                Admin Dashboard
-              </h1>
-              <p className="text-muted-foreground mt-1">Manage your quizzes and view analytics</p>
+              <h1 className="text-3xl font-bold text-foreground">Manage Tests</h1>
+              <p className="text-muted-foreground mt-1">Create tests and view results</p>
             </div>
-            <Button onClick={() => navigate('/admin/create-quiz')}>
-              <Plus className="mr-2 h-4 w-4" />
-              Create Quiz
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={() => navigate('/admin/create-quiz')}>
+                <Plus className="mr-2 h-4 w-4" />
+                Create New Test
+              </Button>
+              <Button variant="outline" onClick={signOut}>
+                Sign Out
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -134,19 +137,19 @@ export default function AdminDashboard() {
       <div className="container mx-auto px-4 py-8">
         {loading ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">Loading quizzes...</p>
+            <p className="text-muted-foreground">Loading tests...</p>
           </div>
         ) : quizzes.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
               <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-lg text-muted-foreground">No quizzes created yet</p>
+              <p className="text-lg text-muted-foreground">No tests created yet</p>
               <p className="text-sm text-muted-foreground mt-2 mb-4">
-                Create your first quiz to get started
+                Create your first test to get started
               </p>
               <Button onClick={() => navigate('/admin/create-quiz')}>
                 <Plus className="mr-2 h-4 w-4" />
-                Create Quiz
+                Create Test
               </Button>
             </CardContent>
           </Card>
@@ -175,6 +178,14 @@ export default function AdminDashboard() {
                   </div>
                 </CardHeader>
                 <CardContent>
+                  <div className="space-y-2 text-sm mb-4">
+                    <p className="text-muted-foreground">
+                      Duration: {quiz.duration_minutes} minutes
+                    </p>
+                    {quiz.class && (
+                      <p className="text-muted-foreground">Class: {quiz.class}</p>
+                    )}
+                  </div>
                   <div className="grid grid-cols-3 gap-4 mb-4">
                     <div className="text-center p-3 bg-muted/50 rounded-lg">
                       <Users className="h-5 w-5 mx-auto mb-1 text-muted-foreground" />
@@ -196,30 +207,13 @@ export default function AdminDashboard() {
                       <p className="text-xs text-muted-foreground">Highest</p>
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      className="flex-1"
-                      onClick={() => navigate(`/admin/quiz/${quiz.id}`)}
-                    >
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="flex-1"
-                      onClick={() => navigate(`/admin/quiz/${quiz.id}/results`)}
-                    >
-                      <FileText className="mr-2 h-4 w-4" />
-                      View Results
-                    </Button>
-                    <Button 
-                      variant="destructive" 
-                      onClick={() => setDeleteQuizId(quiz.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <Button 
+                    variant="destructive" 
+                    onClick={() => setDeleteQuizId(quiz.id)}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </Button>
                 </CardContent>
               </Card>
             ))}
@@ -230,9 +224,9 @@ export default function AdminDashboard() {
       <AlertDialog open={!!deleteQuizId} onOpenChange={() => setDeleteQuizId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>Delete Test</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the quiz and all associated questions and student attempts.
+              Are you sure? This will permanently delete this test and all associated questions.
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

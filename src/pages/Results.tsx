@@ -103,9 +103,9 @@ export default function Results() {
     <div className="min-h-screen bg-background">
       <div className="border-b bg-card">
         <div className="container mx-auto px-4 py-6">
-          <Button variant="ghost" onClick={() => navigate('/student')}>
+          <Button variant="ghost" onClick={() => navigate('/tests')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Dashboard
+            Back to Tests
           </Button>
         </div>
       </div>
@@ -117,7 +117,7 @@ export default function Results() {
               <Trophy className="h-10 w-10 text-primary" />
             </div>
             <CardTitle className="text-3xl">{attempt.quizzes.title}</CardTitle>
-            <CardDescription>Quiz Results</CardDescription>
+            <CardDescription>Test Results</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
@@ -187,6 +187,12 @@ export default function Results() {
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        <div className="mt-8 flex justify-center">
+          <Button size="lg" onClick={() => navigate('/tests')}>
+            Back to Tests
+          </Button>
         </div>
       </div>
     </div>

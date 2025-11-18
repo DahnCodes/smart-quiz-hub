@@ -6,7 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
-import Auth from "./pages/Auth";
+import StudentRegister from "./pages/StudentRegister";
+import AdminLogin from "./pages/AdminLogin";
 import StudentDashboard from "./pages/StudentDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import CreateQuiz from "./pages/CreateQuiz";
@@ -24,13 +25,15 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-            <Route path="/student" element={<ProtectedRoute role="student"><StudentDashboard /></ProtectedRoute>} />
-            <Route path="/admin" element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/" element={<StudentRegister />} />
+            <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/dashboard" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+            <Route path="/tests" element={<ProtectedRoute role="student"><StudentDashboard /></ProtectedRoute>} />
+            <Route path="/admin/dashboard" element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>} />
             <Route path="/admin/create-quiz" element={<ProtectedRoute role="admin"><CreateQuiz /></ProtectedRoute>} />
             <Route path="/quiz/:quizId" element={<ProtectedRoute role="student"><TakeQuiz /></ProtectedRoute>} />
             <Route path="/results/:attemptId" element={<ProtectedRoute><Results /></ProtectedRoute>} />
+            <Route path="/results" element={<ProtectedRoute role="student"><Results /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

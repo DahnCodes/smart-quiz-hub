@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate as useNav } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,7 +26,7 @@ interface Attempt {
 }
 
 export default function StudentDashboard() {
-  const { profile } = useAuth();
+  const { profile, signOut } = useAuth();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,10 +39,12 @@ export default function StudentDashboard() {
 
   const fetchQuizzes = async () => {
     try {
+      // Fetch quizzes for student's class
       const { data, error } = await supabase
         .from('quizzes')
         .select('*')
         .eq('is_active', true)
+        .eq('class', profile?.class)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -86,12 +89,17 @@ export default function StudentDashboard() {
               <h1 className="text-3xl font-bold text-foreground">
                 Welcome, {profile?.full_name}
               </h1>
-              <p className="text-muted-foreground mt-1">Ready to test your knowledge?</p>
+              <p className="text-muted-foreground mt-1">{profile?.class} • Ready for your test?</p>
             </div>
-            <Button variant="outline" onClick={() => navigate('/results')}>
-              <Trophy className="mr-2 h-4 w-4" />
-              My Results
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => navigate('/results')}>
+                <Trophy className="mr-2 h-4 w-4" />
+                My Results
+              </Button>
+              <Button variant="outline" onClick={signOut}>
+                Sign Out
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -105,8 +113,8 @@ export default function StudentDashboard() {
           <Card>
             <CardContent className="py-12 text-center">
               <BookOpen className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-lg text-muted-foreground">No quizzes available yet</p>
-              <p className="text-sm text-muted-foreground mt-2">Check back later for new quizzes</p>
+              <p className="text-lg text-muted-foreground">No tests available for {profile?.class} yet</p>
+              <p className="text-sm text-muted-foreground mt-2">Check back later</p>
             </CardContent>
           </Card>
         ) : (
