@@ -31,9 +31,16 @@ export default function CreateQuiz() {
   const [description, setDescription] = useState('');
   const [duration, setDuration] = useState(30);
   const [instructions, setInstructions] = useState('');
+  const [selectedClass, setSelectedClass] = useState('');
   const [isActive, setIsActive] = useState(true);
   const [randomizeQuestions, setRandomizeQuestions] = useState(true);
   const [randomizeOptions, setRandomizeOptions] = useState(true);
+
+  const CLASSES = [
+    'Primary 1', 'Primary 2', 'Primary 3', 'Primary 4', 'Primary 5', 'Primary 6',
+    'JSS 1', 'JSS 2', 'JSS 3',
+    'SS 1', 'SS 2', 'SS 3'
+  ];
   
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState<Partial<Question>>({
@@ -83,8 +90,8 @@ export default function CreateQuiz() {
   };
 
   const handleSubmit = async () => {
-    if (!title || questions.length === 0) {
-      toast.error('Please provide title and at least one question');
+    if (!title || questions.length === 0 || !selectedClass) {
+      toast.error('Please provide title, class, and at least one question');
       return;
     }
 
@@ -99,6 +106,7 @@ export default function CreateQuiz() {
           description,
           duration_minutes: duration,
           instructions,
+          class: selectedClass,
           is_active: isActive,
           randomize_questions: randomizeQuestions,
           randomize_options: randomizeOptions,
@@ -139,7 +147,7 @@ export default function CreateQuiz() {
     <div className="min-h-screen bg-background">
       <div className="border-b bg-card">
         <div className="container mx-auto px-4 py-6">
-          <Button variant="ghost" onClick={() => navigate('/admin')}>
+          <Button variant="ghost" onClick={() => navigate('/admin/dashboard')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Dashboard
           </Button>
@@ -147,13 +155,13 @@ export default function CreateQuiz() {
       </div>
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-8">Create New Quiz</h1>
+        <h1 className="text-3xl font-bold mb-8">Create New Test</h1>
 
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Quiz Details</CardTitle>
-              <CardDescription>Basic information about your quiz</CardDescription>
+              <CardTitle>Test Details</CardTitle>
+              <CardDescription>Basic information about your test</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -182,7 +190,7 @@ export default function CreateQuiz() {
                   id="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Brief description of the quiz"
+                  placeholder="Brief description of the test"
                   rows={3}
                 />
               </div>
@@ -207,6 +215,22 @@ export default function CreateQuiz() {
                   placeholder="Instructions for students"
                   rows={3}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="class">Class *</Label>
+                <Select value={selectedClass} onValueChange={setSelectedClass}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select class for this quiz" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CLASSES.map((cls) => (
+                      <SelectItem key={cls} value={cls}>
+                        {cls}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="flex items-center justify-between">

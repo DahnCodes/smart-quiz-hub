@@ -8,6 +8,7 @@ interface Profile {
   id: string;
   full_name: string;
   role: 'student' | 'admin';
+  class: string | null;
 }
 
 interface AuthContextType {
@@ -83,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: `${window.location.origin}/dashboard`,
           data: {
             full_name: fullName,
             role: role,
@@ -94,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
       
       toast.success('Account created successfully!');
-      navigate('/');
+      navigate('/dashboard');
     } catch (error: any) {
       toast.error(error.message || 'Error signing up');
       throw error;
@@ -111,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
       
       toast.success('Signed in successfully!');
-      navigate('/');
+      navigate('/dashboard');
     } catch (error: any) {
       toast.error(error.message || 'Error signing in');
       throw error;
@@ -125,7 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       setProfile(null);
       toast.success('Signed out successfully');
-      navigate('/auth');
+      navigate('/');
     } catch (error: any) {
       toast.error(error.message || 'Error signing out');
     }
